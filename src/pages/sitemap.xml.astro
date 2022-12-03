@@ -1,37 +1,32 @@
 ---
-  import {
-  SitemapStream,
-  streamToPromise,
-  SitemapItemLoose,
-  EnumChangefreq
-} from 'sitemap';
-import { Readable } from 'stream';
-import { createGzip } from 'zlib';
+import { SitemapStream, streamToPromise, SitemapItemLoose, EnumChangefreq } from 'sitemap'
+import { Readable } from 'stream'
+import { createGzip } from 'zlib'
 
-const smStream = new SitemapStream();
+const smStream = new SitemapStream({
+  hostname: 'https://hello.com',
+})
 const posts = [
   {
     slug: 'hello',
-    modified_gmt: '2022-11-16T03:14:5',
-  }
+    modified_gmt: '2022-11-16T03:14:51',
+  },
 ]
-const sitemap = posts.map<SitemapItemLoose>(p => ({
+const sitemap = posts.map<SitemapItemLoose>((p) => ({
   url: `hoc/${p.slug}`,
   lastmod: p.modified_gmt.toString(),
   changefreq: EnumChangefreq.DAILY,
-  priority: 0.7
-}));
+  priority: 0.7,
+}))
 
-const content = await streamToPromise(
-  Readable.from(sitemap).pipe(smStream).pipe(createGzip())
-);
-smStream.end();
+const content = await streamToPromise(Readable.from(sitemap).pipe(smStream).pipe(createGzip()))
+smStream.end()
 
 return new Response(content, {
   headers: {
     'Content-Type': 'text/xml',
     'Content-Encoding': 'gzip',
-    'Cache-Control': 'max-age=0, s-maxage=10800' // 3 hours
-  }
-});
+    'Cache-Control': 'max-age=0, s-maxage=10800', // 3 hours
+  },
+})
 ---

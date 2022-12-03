@@ -1,0 +1,37 @@
+---
+  import {
+  SitemapStream,
+  streamToPromise,
+  SitemapItemLoose,
+  EnumChangefreq
+} from 'sitemap';
+import { Readable } from 'stream';
+import { createGzip } from 'zlib';
+
+const smStream = new SitemapStream();
+const posts = [
+  {
+    slug: 'hello',
+    modified_gmt: '2022-11-16T03:14:5',
+  }
+]
+const sitemap = posts.map<SitemapItemLoose>(p => ({
+  url: `hoc/${p.slug}`,
+  lastmod: p.modified_gmt.toString(),
+  changefreq: EnumChangefreq.DAILY,
+  priority: 0.7
+}));
+
+const content = await streamToPromise(
+  Readable.from(sitemap).pipe(smStream).pipe(createGzip())
+);
+smStream.end();
+
+return new Response(content, {
+  headers: {
+    'Content-Type': 'text/xml',
+    'Content-Encoding': 'gzip',
+    'Cache-Control': 'max-age=0, s-maxage=10800' // 3 hours
+  }
+});
+---

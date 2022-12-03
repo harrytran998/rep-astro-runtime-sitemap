@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@astrojs/node": "latest",
-    "astro": "latest"
+    "astro": "latest",
+    "sitemap": "latest"
   }
 }
